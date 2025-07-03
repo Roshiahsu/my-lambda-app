@@ -7,7 +7,7 @@ REM 設定 Lambda function 名稱
 REM 設定 handler
 REM =======================================
 set FUNCTION_NAME=github_pipeline_hello_world
-set HANDLER_NAME=org.example.HelloJava::handleRequest
+set HANDLER_NAME=org.example.HelloWorld::handleRequest
 REM =======================================
 REM 切換到 target 資料夾
 REM =======================================
