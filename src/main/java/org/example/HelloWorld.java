@@ -8,7 +8,7 @@ public class HelloWorld implements RequestHandler<Object, String> {
 
     @Override
     public String handleRequest(Object o, Context context) {
-        return "Hello World~";
+        return "Hello Java~";
     }
 
 }
