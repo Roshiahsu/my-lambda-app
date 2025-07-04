@@ -10,4 +10,5 @@ public class HelloWorld implements RequestHandler<Object, String> {
     public String handleRequest(Object o, Context context) {
         return "Hello World~";
     }
+
 }
