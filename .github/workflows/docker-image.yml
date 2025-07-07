@@ -52,7 +52,7 @@ jobs:
       - name: Deploy to Lambda
         if: ${{ env.DEPLOY_TO_LAMBDA }} == 'true'
         run: |
-          echo ${{ DEPLOY_TO_LAMBDA }}
+          echo ${{ env.DEPLOY_TO_LAMBDA }}
           echo "Deploy to Lambda"
 #          aws lambda update-function-code \
 #            --function-name github_pipeline_docker_Img \
