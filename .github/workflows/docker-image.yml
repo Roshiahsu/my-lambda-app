@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Debug environment variables
         run: |
-          echo "Repository-level AWS_ACCOUNT_ID is set: ${{ secrets.AWS_ACCOUNT_ID != '' }}"
+          echo "Repository-level AWS_ACCOUNT_ID is set: ${{ secrets.AWS_ACCOUNT_ID != '1' }}"
           echo "Environment-level AWS_ACCOUNT_ID is set: ${{ env.AWS_ACCOUNT_ID != '' }}"
           echo "ECR_REPO: ${{ env.ECR_REPO }}"
           echo "DEPLOY_TO_LAMBDA: ${{ env.DEPLOY_TO_LAMBDA }}"
