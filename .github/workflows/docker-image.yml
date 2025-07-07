@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: AWS
     permissions:
       id-token: write
       contents: read
@@ -17,6 +16,7 @@ jobs:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
       DEPLOY_TO_LAMBDA: ${{ vars.DEPLOY_TO_LAMBDA || 'false' }}
+      DOCKER_BUILD: ${{ vars.DOCKER_BUILD || 'false' }}
 
     steps:
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
         run: mvn clean package
 
       - name: Build and Push Docker image
-        if : ${{ vars.DOCKER_BUILD }} == 'true'
+        if : ${{ env.DOCKER_BUILD }} == 'true'
         run: |
           docker build -t ${{ env.ECR_REPO }}:latest .
           docker push ${{ env.ECR_REPO }}:latest
