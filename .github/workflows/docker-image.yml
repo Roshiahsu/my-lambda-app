@@ -8,14 +8,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: AWS
     permissions:
       id-token: write
       contents: read
 
     env:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-      DEPLOY_TO_LAMBDA: ${{ vars.DEPLOY_TO_LAMBDA || 'false' }}
 
     steps:
       - name: Checkout code
@@ -40,13 +39,11 @@ jobs:
         run: mvn clean package
 
       - name: Build and Push Docker image
-        if : ${{ vars.DOCKER_BUILD }} == 'true'
         run: |
           docker build -t ${{ env.ECR_REPO }}:latest .
           docker push ${{ env.ECR_REPO }}:latest
 
       - name: Deploy to Lambda
-        if: ${{ env.DEPLOY_TO_LAMBDA }} == 'true'
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_docker_Img \
