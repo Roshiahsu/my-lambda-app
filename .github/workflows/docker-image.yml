@@ -30,29 +30,25 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Set up Java
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: 'temurin'
-#          java-version: '8'
-#
-#      - name: Build with Maven
-#        run: mvn clean package
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Build with Maven
+        run: mvn clean package
 
       - name: Build and Push Docker image
         if : ${{ env.DOCKER_BUILD }} == 'true'
         run: |
-          echo ${{ env.DOCKER_BUILD }}
-          echo "run Build and Push Docker image"
-#          docker build -t ${{ env.ECR_REPO }}:latest .
-#          docker push ${{ env.ECR_REPO }}:latest
+          docker build -t ${{ env.ECR_REPO }}:latest .
+          docker push ${{ env.ECR_REPO }}:latest
 
       - name: Deploy to Lambda
         if: ${{ env.DEPLOY_TO_LAMBDA }} == 'true'
         run: |
-          echo ${{ DEPLOY_TO_LAMBDA }}
-          echo "Deploy to Lambda"
-#          aws lambda update-function-code \
-#            --function-name github_pipeline_docker_Img \
-#            --image-uri ${{ env.ECR_REPO }}:latest
+          aws lambda update-function-code \
+            --function-name github_pipeline_docker_Img \
+            --image-uri ${{ env.ECR_REPO }}:latest
