@@ -1,29 +1,59 @@
-name: Debug Environment Variables
+name: Build and Deploy with OIDC
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # 允許手動觸發以便快速測試
 
 jobs:
-  debug:
+  deploy:
     runs-on: ubuntu-latest
-    environment: AWS  # 保留 environment: AWS 測試環境級別變量
+    environment: AWS
     permissions:
       id-token: write
       contents: read
+
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
       DEPLOY_TO_LAMBDA: ${{ vars.DEPLOY_TO_LAMBDA || 'false' }}
       DOCKER_BUILD: ${{ vars.DOCKER_BUILD || 'false' }}
+
     steps:
-      - name: Debug environment variables
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-pipeline
+          aws-region: ap-northeast-3
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+#
+#      - name: Set up Java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: '8'
+#
+#      - name: Build with Maven
+#        run: mvn clean package
+
+      - name: Build and Push Docker image
+        if : ${{ env.DOCKER_BUILD }} == 'true'
         run: |
-          echo "Repository-level AWS_ACCOUNT_ID is set: ${{ secrets.AWS_ACCOUNT_ID != '' }}"
-          echo "Environment-level AWS_ACCOUNT_ID is set: ${{ env.AWS_ACCOUNT_ID != '' }}"
-          echo "ECR_REPO: ${{ env.ECR_REPO }}"
-          echo "DEPLOY_TO_LAMBDA: ${{ env.DEPLOY_TO_LAMBDA }}"
-          echo "DOCKER_BUILD: ${{ env.DOCKER_BUILD }}"
-          echo "GitHub Environment: ${{ github.event.repository.environment || 'Not set' }}"
+          echo ${{ env.DOCKER_BUILD }}
+          echo "run Build and Push Docker image"
+#          docker build -t ${{ env.ECR_REPO }}:latest .
+#          docker push ${{ env.ECR_REPO }}:latest
+
+      - name: Deploy to Lambda
+        if: ${{ env.DEPLOY_TO_LAMBDA }} == 'true'
+        run: |
+          echo ${{ env.DEPLOY_TO_LAMBDA }}
+          echo "Deploy to Lambda"
+#          aws lambda update-function-code \
+#            --function-name github_pipeline_docker_Img \
+#            --image-uri ${{ env.ECR_REPO }}:latest
