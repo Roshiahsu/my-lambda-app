@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: AWS
     permissions:
       id-token: write
       contents: read
@@ -42,7 +43,12 @@ jobs:
         run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
 
       - name: Generate JaCoCo Report
-        run: java -jar jacococli.jar report target/jacoco.exec --classfiles target/classes --sourcefiles src/main/java --html target/site/jacoco
+        run: |
+          java -jar jacococli.jar report \
+            target/jacoco.exec \
+            --classfiles target/classes/org/example/HelloWorld.class \
+            --sourcefiles src/main/java/org/example/HelloWorld.java \
+            --html target/site/jacoco
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
@@ -51,7 +57,9 @@ jobs:
           path: target/site/jacoco/
           retention-days: 1
 
-#
+      - name: Upload JaCoCo Report to S3
+        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ env.AWS_S3_BUCKET_JAR }}/
+        if: always() #確保即使前步失敗也嘗試上傳
 #      - name: Configure AWS credentials via OIDC
 #        uses: aws-actions/configure-aws-credentials@v2
 #        with:
