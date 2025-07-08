@@ -39,11 +39,11 @@ jobs:
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar -O jacocoagent.jar
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
 
-      - name: Compile and Package Project
-        run: mvn package -X #-X 啟用Maven詳細log
-
       - name: Run Tests with JaCoCo Agent
         run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+
+      - name: Compile and Package Project
+        run: mvn package #-X #-X 啟用Maven詳細log
 
       - name: Generate JaCoCo Report
         run: |
