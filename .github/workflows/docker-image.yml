@@ -68,13 +68,13 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
           aws-region: ap-northeast-3
 
-      - name: Upload JaCoCo Report to S3
-        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ vars.AWS_S3_BUCKET_JAR }}/
-        if: always() #確保即使前步失敗也嘗試上傳
-
-      - name: Deploy to Lambda
-        run: |
-          aws lambda update-function-code \
-            --function-name github_pipeline_hello_world \
-            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
-            --s3-key aws-lambda-1.0-SNAPSHOT.jar
+      - name: Upload JAR to S3
+        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ vars.AWS_S3_BUCKET_JAR }}/github_pipeline_hello_world/
+        if: always() #確保即使失敗也嘗試上傳
+#
+#      - name: Deploy to Lambda
+#        run: |
+#          aws lambda update-function-code \
+#            --function-name github_pipeline_hello_world \
+#            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
+#            --s3-key aws-lambda-1.0-SNAPSHOT.jar
