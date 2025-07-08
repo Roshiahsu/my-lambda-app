@@ -39,6 +39,9 @@ jobs:
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar -O jacocoagent.jar
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
 
+      - name: Compile and Package Project
+        run: mvn package -X #-X 啟用Maven詳細log
+
       - name: Run Tests with JaCoCo Agent
         run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
 
@@ -57,11 +60,14 @@ jobs:
           path: target/site/jacoco/
           retention-days: 1
 
+
+      #### aws
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+          aws-region: ap-northeast-3
+
       - name: Upload JaCoCo Report to S3
         run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ env.AWS_S3_BUCKET_JAR }}/
         if: always() #確保即使前步失敗也嘗試上傳
-#      - name: Configure AWS credentials via OIDC
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
-#          aws-region: ap-northeast-3
