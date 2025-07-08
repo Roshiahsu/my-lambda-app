@@ -20,8 +20,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
-          aws-region: ap-northeast-3
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+
+      - name: Download JaCoCo Agent
+        run: |
+          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar -O jacocoagent.jar
+          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
+
+      - name: Run Tests with JaCoCo Agent
+        run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+
+      - name: Generate JaCoCo Report
+        run: java -jar jacococli.jar report target/jacoco.exec --classfiles target/classes --sourcefiles src/main/java --html target/site/jacoco
+
+      - name: Upload JaCoCo Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+
+#
+#      - name: Configure AWS credentials via OIDC
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+#          aws-region: ap-northeast-3
