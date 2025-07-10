@@ -5,9 +5,6 @@ on:
     branches:
       - yml-test
 
-env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -15,7 +12,11 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ 'docker' == 'docker' }}
+    if: ${{ vars.BUILD_TYPE == docker }}
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
     steps:
       - name: Debug Variables
