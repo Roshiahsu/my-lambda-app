@@ -17,7 +17,8 @@ jobs:
       id-token: write
       contents: read
 
-#    if: ${{ vars.BUILD_TYPE == 'docker' }}
+    #if: ${{ vars.BUILD_TYPE == 'docker' }}
+    if: true
 
     steps:
       - name: Debug BUILD_TYPE
@@ -48,11 +49,12 @@ jobs:
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
 
       - name: Run Tests with JaCoCo Agent
-        run:  mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
-              if [ $? -ne 0 ]; then
-                  echo "Tests failed"
-                  exit 1
-              fi
+        run: |
+            mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+            if [ $? -ne 0 ]; then
+              echo "Tests failed"
+              exit 1
+            fi
 
       - name: Compile and Package Project
         run: mvn package #-X #-X 啟用Maven詳細log
