@@ -15,7 +15,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ vars.BUILD_TYPE == 'docker' }}
+    if: ${{ 'docker' == 'docker' }}
 
     steps:
       - name: Debug Variables
