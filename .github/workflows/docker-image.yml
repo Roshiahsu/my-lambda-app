@@ -12,11 +12,10 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ contains(env.ENABLE_ACTION, 'false') || false }} # 使用 contains 避免未定義錯誤
+    if: ${{ vars.ENABLE_ACTION || 'false' }} # 使用 contains 避免未定義錯誤
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-      ENABLE_ACTION: ${{ vars.ENABLE_ACTION || 'false' }} # 從 Variables 或默認
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
