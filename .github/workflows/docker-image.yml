@@ -86,25 +86,30 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-              ${{ runner.os }}-buildx-
-
+#      - name: Cache Docker layers
+#        uses: actions/cache@v4
+#        with:
+#          path: /tmp/.buildx-cache
+#          key: ${{ runner.os }}-buildx-${{ github.sha }}
+#          restore-keys: |
+#              ${{ runner.os }}-buildx-
+#
+#      - name: Build and Push Docker image
+#        run: |
+#              docker buildx create --use
+#              docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
+#                                  --cache-to=type=local,dest=/tmp/.buildx-cache \
+#                                  --push \
+#                                  -t ${{ env.ECR_REPO }}:latest .
+#              if [ $? -ne 0 ]; then
+#                echo "Docker push failed"
+#                exit 1
+#              fi
       - name: Build and Push Docker image
         run: |
-              docker buildx create --use
-              docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
-                                  --cache-to=type=local,dest=/tmp/.buildx-cache \
-                                  --push \
-                                  -t ${{ env.ECR_REPO }}:latest .
-              if [ $? -ne 0 ]; then
-                echo "Docker push failed"
-                exit 1
-              fi
+          docker build -t ${{ env.ECR_REPO }}:latest .
+          docker push ${{ env.ECR_REPO }}:latest
+      
 
       - name: Deploy to Lambda
         if: ${{ vars.UPDATE_LAMBDA == 'true' }}
