@@ -5,6 +5,10 @@ on:
     branches:
       - yml-test
 
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,13 +17,12 @@ jobs:
       id-token: write
       contents: read
 
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-
-    if: ${{ vars.BUILD_TYPE === 'docker' }}
+#    if: ${{ vars.BUILD_TYPE == 'docker' }}
 
     steps:
+      - name: Debug BUILD_TYPE
+        run: echo "BUILD_TYPE is ${{ vars.BUILD_TYPE }}"
+
       ##build-and-test flow start
       - name: Checkout code
         uses: actions/checkout@v4
