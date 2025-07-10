@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - yml-test
-  workflow_dispatch: # 支援手動觸發，動態設置 ENABLE_ACTION
-    inputs:
-      ENABLE_ACTION:
-        description: 'Enable the action (true/false)'
-        required: true
-        default: 'true'
 
 jobs:
   deploy:
@@ -18,11 +12,11 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ contains(env.ENABLE_ACTION, 'false') }} # 使用 contains 避免未定義錯誤
+    if: ${{ contains(env.ENABLE_ACTION, 'false') || false }} # 使用 contains 避免未定義錯誤
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-      ENABLE_ACTION: ${{ github.event.inputs.ENABLE_ACTION || vars.ENABLE_ACTION || 'false' }} # 優先級：輸入 > 變數 > 默認
+      ENABLE_ACTION: ${{ vars.ENABLE_ACTION || 'false' }} # 從 Variables 或默認
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
