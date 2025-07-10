@@ -26,6 +26,7 @@ jobs:
             echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
             echo "AWS_REGION: ${{ vars.AWS_REGION }}"
             echo "ECR_REPO: ${{ env.ECR_REPO }}"
+            echo "aws_role: $${{ secrets.aws_role }}
       ##build-and-test flow start
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +81,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/$ {{secrets.aws_role}}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.aws_role }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
