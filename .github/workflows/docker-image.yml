@@ -16,7 +16,7 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-      BUILD_TYPE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+      BUILD_TYPE: ${{ vars.BUILD_TYPE }}
 
     #if: ${{ env.BUILD_TYPE == 'docker' }}
 
@@ -99,8 +99,8 @@ jobs:
               docker buildx create --use
               docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
                                   --cache-to=type=local,dest=/tmp/.buildx-cache \
+                                  --push \
                                   -t ${{ env.ECR_REPO }}:latest .
-              docker push ${{ env.ECR_REPO }}:latest
               if [ $? -ne 0 ]; then
                 echo "Docker push failed"
                 exit 1
