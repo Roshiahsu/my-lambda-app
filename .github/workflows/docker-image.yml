@@ -1,10 +1,13 @@
-name: Build and Deploy with OIDC
+name: Build and Deploy with OIDC ,Docker Img
 
 on:
   push:
     branches:
       - yml-test
-
+env:
+  AWS_REGION: ap-northeast-3
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,13 +15,14 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ vars.ENABLE_ACTION == 'true' }}
-    env:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+    if: ${{ vars.BUILD_TYPE == 'docker' }}
+
     steps:
+      ##build-and-test flow start
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # 減少簽出時間,拉取最新的單個 commit
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -29,9 +33,9 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-            path: ~/.m2
-            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-            restore-keys: ${{ runner.os }}-m2
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Download JaCoCo Agent
         run: |
@@ -39,7 +43,11 @@ jobs:
           wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
 
       - name: Run Tests with JaCoCo Agent
-        run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+        run:  mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+              if [ $? -ne 0 ]; then
+                  echo "Tests failed"
+                  exit 1
+              fi
 
       - name: Compile and Package Project
         run: mvn package #-X #-X 啟用Maven詳細log
@@ -59,21 +67,52 @@ jobs:
           path: target/site/jacoco/
           retention-days: 1
 
-
-      #### aws
+      ##deploy flow start
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
-          aws-region: ap-northeast-3
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-pipeline
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload JAR to S3
-        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ vars.AWS_S3_BUCKET_JAR }}/github_pipeline_hello_world/
-        if: always() #確保即使失敗也嘗試上傳
-#
-#      - name: Deploy to Lambda
-#        run: |
-#          aws lambda update-function-code \
-#            --function-name github_pipeline_hello_world \
-#            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
-#            --s3-key aws-lambda-1.0-SNAPSHOT.jar
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+              ${{ runner.os }}-buildx-
+
+      - name: Build and Push Docker image
+        run: |
+              docker buildx create --use
+              docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
+                                  --cache-to=type=local,dest=/tmp/.buildx-cache \
+                                  -t ${{ env.ECR_REPO }}:latest .
+              docker push ${{ env.ECR_REPO }}:latest
+              if [ $? -ne 0 ]; then
+                echo "Docker push failed"
+                exit 1
+              fi
+
+      - name: Build and Push Docker image
+        run: |
+          docker build -t ${{ env.ECR_REPO }}:latest .
+          docker push ${{ env.ECR_REPO }}:latest
+          if [ $? -ne 0 ]; then
+            echo "Docker push failed"
+            exit 1
+          fi
+
+      - name: Deploy to Lambda
+        if: ${{ vars.UPDATE_LAMBDA == 'true' }}
+        run: |
+          aws lambda update-function-code \
+            --function-name github_pipeline_docker_Img \
+            --image-uri ${{ env.ECR_REPO }}:latest
+          if [ $? -ne 0 ]; then
+            echo "Lambda deployment failed"
+            exit 1
+          fi
