@@ -12,11 +12,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ vars.BUILD_TYPE == docker }}
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+
+    if: ${{ vars.BUILD_TYPE == docker }}
 
     steps:
       - name: Debug Variables
