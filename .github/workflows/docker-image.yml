@@ -18,12 +18,9 @@ jobs:
       contents: read
 
     #if: ${{ vars.BUILD_TYPE == 'docker' }}
-    if: true
+    if: false
 
     steps:
-      - name: Debug BUILD_TYPE
-        run: echo "BUILD_TYPE is ${{ vars.BUILD_TYPE }}"
-
       ##build-and-test flow start
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,15 +100,6 @@ jobs:
                 echo "Docker push failed"
                 exit 1
               fi
-
-      - name: Build and Push Docker image
-        run: |
-          docker build -t ${{ env.ECR_REPO }}:latest .
-          docker push ${{ env.ECR_REPO }}:latest
-          if [ $? -ne 0 ]; then
-            echo "Docker push failed"
-            exit 1
-          fi
 
       - name: Deploy to Lambda
         if: ${{ vars.UPDATE_LAMBDA == 'true' }}
