@@ -8,7 +8,6 @@ on:
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-  BUILD_TYPE: docker
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,10 +15,14 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
     if: ${{ vars.BUILD_TYPE == 'docker' }}
 
     steps:
+      - name: Debug Variables
+        run: |
+            echo "BUILD_TYPE: ${{ vars.BUILD_TYPE }}"
+            echo "AWS_REGION: ${{ vars.AWS_REGION }}"
+            echo "ECR_REPO: ${{ env.ECR_REPO }}"
       ##build-and-test flow start
       - name: Checkout code
         uses: actions/checkout@v4
