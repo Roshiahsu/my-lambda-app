@@ -8,69 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: AWS
-    permissions:
-      id-token: write
-      contents: read
-    env:
-      BUILD_TYPE: ${{ vars.BUILD_TYPE || github.event.inputs.build-type || 's3' }}
     steps:
-      - name: Debug Variables
-        run: |
-          echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
-
-      - name: checkout app source code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: yml-test
 
-      - name: Debug Branch and Files
+      - name: Debug
         run: |
-          git branch --show-current
+          echo "Running on yml-test branch"
           ls -la .github/workflows/
 
-      - name: Call Docker Workflow
-        if: ${{ env.BUILD_TYPE == 'docker' }}
-        uses: ./.github/actions/build-docker.yml@yml-test
+      - name: Call Echo Action
+        uses: ./.github/workflows/echo-action.yml@yml-test
         with:
-          aws-region: ${{ vars.AWS_REGION }}
-          ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-#
-#      - name: Call S3 Workflow
-#        if: ${{ env.BUILD_TYPE == 's3' }}
-#        uses: ./.github/action/build-s3/action.yml@yml-test
-#        with:
-#          aws-region: ${{ vars.AWS_REGION }}
-#          s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
-
-#  deploy-lambda:
-#    runs-on: ubuntu-latest
-#    environment: AWS
-#    permissions:
-#      id-token: write
-#      contents: read
-#    needs: deploy
-#    if: ${{ vars.UPDATE_LAMBDA == 'true' }}
-#    env:
-#      BUILD_TYPE: ${{ vars.BUILD_TYPE || github.event.inputs.build-type || 'docker' }}
-#      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-#      S3_BUCKET: ${{ vars.AWS_S3_BUCKET_JAR || 'lambda-deploy-jar-roshia' }}
-#    steps:
-#      - name: Configure AWS credentials via OIDC
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-pipeline
-#          aws-region: ${{ vars.AWS_REGION || 'ap-northeast-3' }}
-#
-#      - name: Deploy to Lambda
-#        run: |
-#          if [ "${{ env.BUILD_TYPE }}" == "docker" ]; then
-#            IMAGE_URI="${{ env.ECR_REPO }}:latest"
-#            aws lambda update-function-code --function-name github_pipeline_docker_Img --image-uri $IMAGE_URI
-#          else
-#            aws lambda update-function-code --function-name github_pipeline_docker_Img --s3-bucket ${{ env.S3_BUCKET }} --s3-key my-lambda.jar
-#          fi
-#          if [ $? -ne 0 ]; then
-#            echo "Lambda deployment failed"
-#            exit 1
-#          fi
+          message: "Hello from Main Workflow"

@@ -1,0 +1,21 @@
+name: Echo Action
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: yml-test
+
+      - name: Echo Message
+        run: |
+          echo "Input message: ${{ inputs.message }}"
