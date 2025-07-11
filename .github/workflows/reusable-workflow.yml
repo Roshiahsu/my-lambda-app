@@ -20,8 +20,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Print Docker Info
         run: |
-          echo "Region: ${{ inputs.AWS_REGION }}"
-          echo "bucket: ${{ inputs.AWS_S3_BUCKET_JAR }}"
+          echo "Region: ${{ vars.AWS_REGION }}"
+          echo "bucket: ${{ vars.AWS_S3_BUCKET_JAR }}"
 
   call-docker:
     needs: prebuild-java
