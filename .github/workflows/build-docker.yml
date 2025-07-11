@@ -9,7 +9,7 @@ on:
       aws-bucket:
         required: true
         type: string
-      deployToAWS:
+      deployToLambda:
         required: true
         type: boolean
         default: false
@@ -54,7 +54,7 @@ jobs:
         if: always() #確保即使失敗也嘗試上傳
 
       - name: Deploy to Lambda
-        if: ${{ inputs.deployToAWS }}
+        if: ${{ inputs.deployToLambda }}
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_hello_world \
