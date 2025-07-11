@@ -15,9 +15,13 @@ jobs:
       AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Print Docker Info
+        run: |
+          echo "hello"
 #
 #      - name: Set up Java
 #        uses: actions/setup-java@v4
