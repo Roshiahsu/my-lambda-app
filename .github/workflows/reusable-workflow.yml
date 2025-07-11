@@ -14,4 +14,3 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    environment: AWS

@@ -25,3 +25,7 @@ jobs:
         run: |
           echo "Region: ${{ inputs.aws-region }}"
           echo "Repo: ${{ inputs.ecr-repo }}"
+
+      - name: Print env Info
+        run: |
+          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
