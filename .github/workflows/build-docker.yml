@@ -29,5 +29,5 @@ jobs:
 
       - name: Print env Info
         run: |
-          echo "AWS_ACCOUNT_ID: ${{ aws-account-id }}"
+          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
           echo "ECR_REPO: ${{ secrets.ECR_REPO }}"
