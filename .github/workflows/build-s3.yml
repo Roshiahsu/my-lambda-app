@@ -21,15 +21,14 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Debug Variables
-        run: |
-          echo "run s3"
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
+      - name: Debug Variables
+        run: |
+          echo "run s3"
 #      - name: Set up Java
 #        uses: actions/setup-java@v4
 #        with:
