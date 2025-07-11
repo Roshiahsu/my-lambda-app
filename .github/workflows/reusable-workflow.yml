@@ -16,9 +16,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Print Docker Info
-        run: |
-          echo "hello"
+      - name: Show build type
+        run: echo "BUILD_TYPE = ${{ vars.BUILD_TYPE }}"
 
   call-docker:
     needs: prebuild-java
@@ -36,7 +35,7 @@ jobs:
   call-s3:
     needs: prebuild-java
     if: ${{ vars.BUILD_TYPE == 's3' }}
-    uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
+    uses: Roshiahsu/my-lambda-app/.github/workflows/build-s3.yml@yml-test
     with:
       aws-region: ${{ vars.AWS_REGION }}
     permissions:
