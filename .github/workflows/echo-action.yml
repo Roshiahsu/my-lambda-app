@@ -1,11 +1,9 @@
 name: Echo Action
 
 on:
-  workflow_call:
-    inputs:
-      message:
-        required: true
-        type: string
+  push:
+    branches:
+      - yml-test
 
 jobs:
   echo:
@@ -18,4 +16,4 @@ jobs:
 
       - name: Echo Message
         run: |
-          echo "Input message: ${{ inputs.message }}"
+          echo "Test message from echo-action.yml"
