@@ -42,6 +42,13 @@ jobs:
         with:
           aws-region: ${{ vars.AWS_REGION }}
           s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/action/build-docker
+      - uses: ./.github/action/build-s3
 
 #  deploy-lambda:
 #    runs-on: ubuntu-latest
