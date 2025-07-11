@@ -20,6 +20,7 @@ jobs:
         run: |
           echo "build-type=${{ vars.BUILD_TYPE }}" >> $GITHUB_OUTPUT
           echo "aws-region=${{ vars.AWS_REGION }}" >> $GITHUB_OUTPUT
+          echo "aws-bucket=${{ vars.AWS_S3_BUCKET_JAR }}" >> $GITHUB_OUTPUT
           echo "deployToLambda=${{ vars.DEPLOY_TO_LAMBDA }}" >> $GITHUB_OUTPUT
 
       - name: Checkout code
