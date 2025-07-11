@@ -31,17 +31,17 @@ jobs:
 
       - name: Call Docker Workflow
         if: ${{ env.BUILD_TYPE == 'docker' }}
-        uses: ./.github/action/build-docker/action.yml@yml-test
+        uses: ./.github/actions/build-docker.yml@yml-test
         with:
           aws-region: ${{ vars.AWS_REGION }}
           ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-
-      - name: Call S3 Workflow
-        if: ${{ env.BUILD_TYPE == 's3' }}
-        uses: ./.github/action/build-s3/action.yml@yml-test
-        with:
-          aws-region: ${{ vars.AWS_REGION }}
-          s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
+#
+#      - name: Call S3 Workflow
+#        if: ${{ env.BUILD_TYPE == 's3' }}
+#        uses: ./.github/action/build-s3/action.yml@yml-test
+#        with:
+#          aws-region: ${{ vars.AWS_REGION }}
+#          s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
 
 #  deploy-lambda:
 #    runs-on: ubuntu-latest

@@ -9,9 +9,6 @@ on:
       ecr-repo:
         required: true
         type: string
-    secrets:
-      aws-account-id:
-        required: true
 
 jobs:
   build:
