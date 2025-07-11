@@ -23,7 +23,7 @@ jobs:
       - name: checkout app source code
         uses: actions/checkout@v4
         with:
-          repository: https://github.com/Roshiahsu/my-lambda-app
+          repository: ${{github.repository}}
           ref: yml-test
 
       - name: Debug Branch and Files
