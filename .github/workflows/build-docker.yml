@@ -6,6 +6,9 @@ on:
       aws-region:
         required: true
         type: string
+      aws-bucket:
+        required: true
+        type: string
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -23,12 +26,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Print Docker Info
-        run: |
-          echo "Region: ${{ inputs.aws-region }}"
-          echo "Build: docker"
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+          aws-region: ${{ inputs.region }}
 
-      - name: Print env Info
+      - name: Upload JaCoCo Report to S3
+        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ input.aws-bucket }}/
+        if: always() #確保即使前步失敗也嘗試上傳
+
+      - name: Deploy to Lambda
         run: |
-          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
-          echo "ECR_REPO: ${{ secrets.ECR_REPO }}"
+          aws lambda update-function-code \
+            --function-name github_pipeline_hello_world \
+            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
+            --s3-key aws-lambda-1.0-SNAPSHOT.jar
+#
