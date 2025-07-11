@@ -28,8 +28,8 @@ jobs:
     if: ${{ needs.prebuild-java.outputs.build-type == 'docker' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
-      aws-region: ${{ vars.AWS_REGION }}
-      aws-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
+      aws-region: ap-southeast-1
+      aws-bucket: my-test-bucket
     permissions:
       id-token: write
       contents: read
