@@ -21,7 +21,7 @@ jobs:
           echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
 
       - name: Call Docker Workflow
-        uses: ./.github/workflows/build-docker.yml
+        uses: my-lambda-app/.github/workflows/build-docker.yml@yml-test
         if: ${{ env.BUILD_TYPE == 'docker' }}
         with:
           branch_name: ${{ env.NAME }}
@@ -29,7 +29,7 @@ jobs:
           ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
       - name: Call S3 Workflow
-        uses: ./.github/workflows/build-s3.yml
+        uses: my-lambda-app/.github/workflows/build-s3.yml@yml-test
         if: ${{ env.BUILD_TYPE == 's3' }}
         with:
           branch_name: ${{ env.NAME }}
