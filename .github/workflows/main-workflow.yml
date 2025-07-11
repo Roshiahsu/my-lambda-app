@@ -15,6 +15,7 @@ jobs:
     env:
       BUILD_TYPE: ${{ vars.BUILD_TYPE || github.event.inputs.build-type || 's3' }}
     steps:
+      - uses: actions/checkout@v4
       - name: Debug Variables
         run: |
           echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
@@ -22,7 +23,7 @@ jobs:
       - name: checkout app source code
         uses: actions/checkout@v4
         with:
-          repository: https://github.com/Roshiahsu/my-lambda-app.git@yml-test
+          repository: https://github.com/Roshiahsu/my-lambda-app
           ref: yml-test
 
       - name: Debug Branch and Files
