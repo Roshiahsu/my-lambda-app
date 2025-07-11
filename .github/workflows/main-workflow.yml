@@ -14,6 +14,7 @@ jobs:
       contents: read
     env:
       BUILD_TYPE: ${{ vars.BUILD_TYPE || github.event.inputs.build-type || 's3' }}
+      NAME: yml-test
     steps:
       - name: Debug Variables
         run: |
@@ -23,6 +24,7 @@ jobs:
         uses: ./.github/workflows/build-docker.yml
         if: ${{ env.BUILD_TYPE == 'docker' }}
         with:
+          branch_name: ${{ env.NAME }}
           aws-region: ${{ vars.AWS_REGION }}
           ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
@@ -30,6 +32,7 @@ jobs:
         uses: ./.github/workflows/build-s3.yml
         if: ${{ env.BUILD_TYPE == 's3' }}
         with:
+          branch_name: ${{ env.NAME }}
           aws-region: ${{ vars.AWS_REGION }}
           s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
 
