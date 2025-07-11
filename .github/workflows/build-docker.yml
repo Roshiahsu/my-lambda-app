@@ -54,7 +54,7 @@ jobs:
         if: always() #確保即使失敗也嘗試上傳
 
       - name: Deploy to Lambda
-        if: ${{ inputs.deploy-to-aws }}
+        if: ${{ inputs.deployToAWS }}
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_hello_world \
