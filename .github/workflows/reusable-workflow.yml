@@ -11,25 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build-type: ${{ steps.export.outputs.build-type }}
+      aws-region: ${{ steps.export.outputs.aws-region }}
+      aws-bucket: ${{ steps.export.outputs.aws-bucket }}
 
     steps:
       - id: export
-        run: echo "build-type=${{ vars.BUILD_TYPE }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "build-type=${{ vars.BUILD_TYPE }}" >> $GITHUB_OUTPUT
+          echo "aws-region=${{ vars.AWS_REGION }}" >> $GITHUB_OUTPUT
+          echo "aws-bucket=${{ vars.AWS_S3_BUCKET_JAR }}" >> $GITHUB_OUTPUT
 
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Print Docker Info
-        run: |
-          echo "Region: ${{ vars.AWS_REGION }}"
-          echo "bucket: ${{ vars.AWS_S3_BUCKET_JAR }}"
 
   call-docker:
     needs: prebuild-java
     if: ${{ needs.prebuild-java.outputs.build-type == 'docker' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
-      aws-region: ap-southeast-1
-      aws-bucket: my-test-bucket
+      aws-region: ${{ needs.prebuild-java.outputs.aws-region}}
+      aws-bucket: ${{ needs.prebuild-java.outputs.aws-bucket }}
     permissions:
       id-token: write
       contents: read
