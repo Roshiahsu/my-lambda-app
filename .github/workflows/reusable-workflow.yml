@@ -11,8 +11,13 @@ jobs:
   prebuild-java:
     environment: AWS
     runs-on: ubuntu-latest
+    outputs:
+      build-type: ${{ steps.export.outputs.build-type }}
 
     steps:
+      - id: export
+        run: echo "build-type=${{ vars.BUILD_TYPE }}" >> $GITHUB_OUTPUT
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -21,7 +26,7 @@ jobs:
 
   call-docker:
     needs: prebuild-java
-    if: ${{ vars.BUILD_TYPE == 'docker' }}
+    if: ${{ needs.set-env.outputs.build-type == 'docker' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
       aws-region: ${{ vars.AWS_REGION }}
@@ -34,7 +39,7 @@ jobs:
 
   call-s3:
     needs: prebuild-java
-    if: ${{ vars.BUILD_TYPE == 's3' }}
+    if: ${{ needs.set-env.outputs.build-type == 's3' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-s3.yml@yml-test
     with:
       aws-region: ${{ vars.AWS_REGION }}
