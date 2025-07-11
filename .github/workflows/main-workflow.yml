@@ -20,8 +20,14 @@ jobs:
         run: |
           echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
 
+      - name: Set BUILD_TYPE Output
+        id: set-output
+        run: |
+          echo "build_type=${{ vars.BUILD_TYPE || 's3' }}" >> "$GITHUB_OUTPUT"
+
   call-build-docker:
-    if: ${{ vars.BUILD_TYPE == 'docker' }}
+    needs: deploy
+    if: ${{ needs.deploy.outputs.build_type == 'docker' }}
     uses: ./.github/workflows/build-docker.yml
     with:
       aws-region: ${{ vars.AWS_REGION }}
@@ -30,7 +36,8 @@ jobs:
       aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 
   call-build-s3:
-    if: ${{ vars.BUILD_TYPE == 's3' }}
+    needs: deploy
+    if: ${{ needs.deploy.outputs.build_type == 's3' }}
     uses: ./.github/workflows/build-s3.yml
     with:
       aws-region: ${{ vars.AWS_REGION }}
