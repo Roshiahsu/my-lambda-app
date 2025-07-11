@@ -5,7 +5,56 @@ on:
     branches:
       - yml-test
 
+env:
+  AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
+  ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+
 jobs:
+#  prebuild-java:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '8'
+#
+#      - name: Cache Maven packages
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2
+#          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: ${{ runner.os }}-m2
+#
+#      - name: Download JaCoCo Agent
+#        run: |
+#          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar -O jacocoagent.jar
+#          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar -O jacococli.jar
+#
+#      - name: Run Tests with JaCoCo Agent
+#        run: mvn clean test -DargLine="-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,append=false"
+#
+#      - name: Compile and Package Project
+#        run: mvn package #-X #-X 啟用Maven詳細log
+#
+#      - name: Generate JaCoCo Report
+#        run: |
+#          java -jar jacococli.jar report \
+#            target/jacoco.exec \
+#            --classfiles target/classes/org/example/HelloWorld.class \
+#            --sourcefiles src/main/java/org/example/HelloWorld.java \
+#            --html target/site/jacoco
+#
+#      - name: Upload JaCoCo Report
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: jacoco-report
+#          path: target/site/jacoco/
+#          retention-days: 1
+
   call-docker:
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
@@ -14,5 +63,5 @@ jobs:
       id-token: write
       contents: read
     secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
+      AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
+      ECR_REPO: ${{ env.ECR_REPO }}
