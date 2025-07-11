@@ -26,11 +26,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Call local composite Maven Build
+        uses: ./.github/actions/maven-build
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
-          aws-region: ${{ inputs.region }}
+          aws-region: ${{ inputs.aws-region }}
 
       - name: Upload JaCoCo Report to S3
         run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ inputs.aws-bucket }}/
