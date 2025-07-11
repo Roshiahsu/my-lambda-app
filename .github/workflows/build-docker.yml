@@ -6,9 +6,11 @@ on:
       aws-region:
         required: true
         type: string
-      ecr-repo:
+    secrets:
+      AWS_ACCOUNT_ID:
         required: true
-        type: string
+      ECR_REPO:
+        required: true
 
 jobs:
   build:
@@ -27,5 +29,5 @@ jobs:
 
       - name: Print env Info
         run: |
-          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+          echo "AWS_ACCOUNT_ID: ${{ aws-account-id }}"
           echo "ECR_REPO: ${{ secrets.ECR_REPO }}"
