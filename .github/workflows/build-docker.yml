@@ -29,6 +29,7 @@ jobs:
       - name: Print Docker Info
         run: |
           echo "Region: ${{ inputs.aws-region }}"
+          echo "bucket: ${{ inputs.aws-bucket }}"
 
       - name: Print env Info
         run: |
