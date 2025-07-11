@@ -1,0 +1,60 @@
+name: Build and Deploy JAR to S3
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      s3-bucket:
+        required: true
+        type: string
+    secrets:
+      aws-account-id:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Debug Variables
+        run: |
+          echo "run s3"
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 1
+#
+#      - name: Set up Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '8'
+#
+#      - name: Cache Maven packages
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2
+#          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: ${{ runner.os }}-m2
+#
+#      - name: Compile and Package Project
+#        run: mvn package
+#
+#      - name: Configure AWS credentials via OIDC
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: arn:aws:iam::${{ secrets.aws-account-id }}:role/github-pipeline
+#          aws-region: ${{ inputs.aws-region }}
+#
+#      - name: Upload JAR to S3
+#        run: |
+#          aws s3 cp target/*.jar s3://${{ inputs.s3-bucket }}/my-lambda.jar
+#          if [ $? -ne 0 ]; then
+#            echo "S3 upload failed"
+#            exit 1
+#          fi

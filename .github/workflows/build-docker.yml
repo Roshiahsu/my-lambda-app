@@ -1,0 +1,72 @@
+name: Build Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      ecr-repo:
+        required: true
+        type: string
+    secrets:
+      aws-account-id:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Debug Variables
+        run: |
+            echo "run docker"
+
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 1
+#
+#      - name: Set up Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '8'
+#
+#      - name: Cache Maven packages
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2
+#          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: ${{ runner.os }}-m2
+#
+#      - name: Compile and Package Project
+#        run: mvn package
+#
+#      - name: Configure AWS credentials via OIDC
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: arn:aws:iam::${{ secrets.aws-account-id }}:role/github-pipeline
+#          aws-region: ${{ inputs.aws-region }}
+#
+#      - name: Create ECR Repository if not exists
+#        run: |
+#          aws ecr describe-repositories --repository-names my-lambda-image --region ${{ inputs.aws-region }} || \
+#          aws ecr create-repository --repository-name my-lambda-image --region ${{ inputs.aws-region }}
+#
+#      - name: Login to Amazon ECR
+#        uses: aws-actions/amazon-ecr-login@v2
+#
+#      - name: Build and Push Docker image
+#        run: |
+#          docker build -t ${{ inputs.ecr-repo }}:latest .
+#          docker push ${{ inputs.ecr-repo }}:latest
+#          if [ $? -ne 0 ]; then
+#            echo "Docker push failed"
+#            exit 1
+#          fi
+#          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+#          echo "REPO_NAME=my-lambda-image" >> $GITHUB_ENV
