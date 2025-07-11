@@ -9,6 +9,10 @@ on:
       aws-bucket:
         required: true
         type: string
+      deployToAWS:
+        required: true
+        type: boolean
+        default: false
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -46,10 +50,11 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
 
       - name: Upload JaCoCo Report to S3
-        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ inputs.aws-bucket }}/
+        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ inputs.aws-bucket }}/github_pipeline_hello_world #deploy會找function-name為名的資料夾，所以要傳到相對應位置
         if: always() #確保即使失敗也嘗試上傳
 
       - name: Deploy to Lambda
+        if: ${{ inputs.deploy-to-aws }}
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_hello_world \
