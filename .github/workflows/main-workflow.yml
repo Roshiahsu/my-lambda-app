@@ -21,6 +21,8 @@ jobs:
 
       - name: checkout app source code
         uses: actions/checkout@v4
+        with:
+          ref: yml-test
 
       - name: Debug Branch and Files
         run: |
