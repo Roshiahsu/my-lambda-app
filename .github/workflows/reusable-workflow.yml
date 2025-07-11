@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - yml-test
-      -
+
 jobs:
   prebuild-java:
     environment: AWS
@@ -20,7 +20,7 @@ jobs:
 
   call-docker:
     needs: prebuild-java
-    if: ${{ vars.BUILD_TYPE }} == 'docker'
+    if: ${{ vars.BUILD_TYPE == 'docker' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
       aws-region: ${{ vars.AWS_REGION }}
@@ -33,7 +33,7 @@ jobs:
 
   call-s3:
     needs: prebuild-java
-    if: ${{ vars.BUILD_TYPE }} == 's3'
+    if: ${{ vars.BUILD_TYPE == 's3' }}
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
       aws-region: ${{ vars.AWS_REGION }}
