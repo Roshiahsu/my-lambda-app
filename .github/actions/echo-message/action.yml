@@ -1,3 +1,4 @@
+---
 name: Echo Message
 description: Print a message to the console
 
@@ -10,5 +11,4 @@ runs:
   using: "composite"
   steps:
     - name: Print message
-      run: echo "Message ${{ inputs.message }}"
-
+      run: echo "Message: ${{ inputs.message }}"
