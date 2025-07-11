@@ -1,25 +1,17 @@
-name: Main Workflow
+name: Test Composite Action
 
 on:
   push:
-    branches:
-      - yml-test
+    branches: [yml-test]
 
 jobs:
-  deploy:
+  test-composite:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: yml-test
 
-      - name: Debug
-        run: |
-          echo "Running on yml-test branch"
-          ls -la .github/workflows/
-
-      - name: Call Echo Action
-        uses: Roshiahsu/my-lambda-app/.github/workflows/echo-action.yml@yml-test
+      - name: Call local composite action
+        uses: ./.github/actions/echo-message
         with:
-          message: "Hello from Main Workflow"
+          message: "Hello from composite action"
