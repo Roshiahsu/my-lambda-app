@@ -14,34 +14,24 @@ jobs:
       contents: read
     env:
       BUILD_TYPE: ${{ vars.BUILD_TYPE || github.event.inputs.build-type || 's3' }}
-      NAME: yml-test
     steps:
       - name: Debug Variables
         run: |
           echo "BUILD_TYPE: ${{ env.BUILD_TYPE }}"
 
-      - name: Set BUILD_TYPE Output
-        id: set-output
-        run: |
-          echo "build_type=${{ vars.BUILD_TYPE || 's3' }}" >> "$GITHUB_OUTPUT"
+      - name: Call Docker Workflow
+        uses: ./.github/workflows/actions/build-docker.yml
+        if: ${{ env.BUILD_TYPE == 'docker' }}
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
-  call-build-docker:
-    needs: deploy
-    if: ${{ needs.deploy.outputs.build_type == 'docker' }}
-    uses: ./.github/workflows/build-docker.yml
-    with:
-      aws-region: ${{ vars.AWS_REGION }}
-      ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
-    secrets:
-      aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
-
-  call-build-s3:
-    needs: deploy
-    if: ${{ needs.deploy.outputs.build_type == 's3' }}
-    uses: ./.github/workflows/build-s3.yml
-    with:
-      aws-region: ${{ vars.AWS_REGION }}
-      branch_name: yml-test
+      - name: Call S3 Workflow
+        uses: ./.github/workflows/actions/build-s3.yml
+        if: ${{ env.BUILD_TYPE == 's3' }}
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          s3-bucket: ${{ vars.AWS_S3_BUCKET_JAR }}
 
 #  deploy-lambda:
 #    runs-on: ubuntu-latest
