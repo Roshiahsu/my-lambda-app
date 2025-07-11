@@ -24,8 +24,8 @@ jobs:
       - name: Print Docker Info
         run: |
           echo "Region: ${{ inputs.aws-region }}"
-          echo "Repo: ${{ inputs.ecr-repo }}"
 
       - name: Print env Info
         run: |
           echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+          echo "ECR_REPO: ${{ secrets.ECR_REPO }}"

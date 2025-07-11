@@ -9,8 +9,10 @@ jobs:
   call-docker:
     uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
     with:
-      aws-region: ap-southeast-1
-      ecr-repo: my-lambda-image
+      aws-region: ${{ vars.AWS_REGION }}
     permissions:
       id-token: write
       contents: read
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
