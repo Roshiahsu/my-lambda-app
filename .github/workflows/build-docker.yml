@@ -23,6 +23,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: yml-test
+          fetch-depth: 1
 
       - name: Debug Variables
         run: |
