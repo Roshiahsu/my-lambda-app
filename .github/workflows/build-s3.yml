@@ -23,10 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Print Docker Info
+      - name: Print S3 Info
         run: |
           echo "Region: ${{ inputs.aws-region }}"
-          echo "Build: docker"
+          echo "Build: S3"
 
       - name: Print env Info
         run: |
