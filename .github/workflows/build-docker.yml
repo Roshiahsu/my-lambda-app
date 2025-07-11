@@ -1,0 +1,27 @@
+name: Build Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      ecr-repo:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: AWS
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print Docker Info
+        run: |
+          echo "Region: ${{ inputs.aws-region }}"
+          echo "Repo: ${{ inputs.ecr-repo }}"

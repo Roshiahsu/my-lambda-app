@@ -1,0 +1,17 @@
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - yml-test
+
+jobs:
+  call-docker:
+    uses: your-org/your-repo/.github/workflows/build-docker.yml@yml-test
+    with:
+      aws-region: ap-southeast-1
+      ecr-repo: my-lambda-image
+    permissions:
+      id-token: write
+      contents: read
+    environment: AWS

@@ -2,7 +2,7 @@ name: Test Composite Action
 
 on:
   push:
-    branches: [yml-test]
+    branches: [yml-test-disable]
 
 jobs:
   test-composite:
