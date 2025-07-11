@@ -19,7 +19,7 @@ jobs:
           echo "Running on yml-test branch"
           ls -la .github/workflows/
 
-      - name: Call Echo Action
-        uses: ./.github/workflows/echo-action.yml
-        with:
-          message: "Hello from Main Workflow"
+  call-echo:
+    uses: Roshiahsu/my-lambda-app/.github/workflows/echo-action.yml@yml-test
+    with:
+      message: "Hello from Main Workflow"
