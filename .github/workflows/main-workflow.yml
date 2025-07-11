@@ -23,14 +23,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Call Docker Workflow
-        uses: ./.github/actions/build-docker.yml
+        uses: ./.github/workflows/build-docker.yml
         if: ${{ env.BUILD_TYPE == 'docker' }}
         with:
           aws-region: ${{ vars.AWS_REGION }}
           ecr-repo: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
 
       - name: Call S3 Workflow
-        uses: ./.github/actions/build-s3.yml
+        uses: ./.github/workflows/build-s3.yml
         if: ${{ env.BUILD_TYPE == 's3' }}
         with:
           aws-region: ${{ vars.AWS_REGION }}
