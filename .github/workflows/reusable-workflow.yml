@@ -5,7 +5,6 @@ on:
     branches:
       - yml-test
 
-
 jobs:
   prebuild-java:
     environment: AWS
@@ -67,5 +66,5 @@ jobs:
       id-token: write
       contents: read
     secrets:
-      AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-3.amazonaws.com/my-lambda-image
