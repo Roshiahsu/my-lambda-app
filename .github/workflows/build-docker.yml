@@ -55,18 +55,16 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          docker build -t ${{ inputs.ECR_REPO }}:latest .
-          docker push ${{ inputs.ECR_REPO }}:latest
+          docker build -t ${{ secrets.ECR_REPO }}:latest .
+          docker push ${{ secrets.ECR_REPO }}:latest
           if [ $? -ne 0 ]; then
             echo "Docker push failed"
             exit 1
           fi
-          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
-          echo "REPO_NAME=my-lambda-image" >> $GITHUB_ENV
 
       - name: Deploy to Lambda
         if: ${{ inputs.deployToLambda == 'true' }}
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_docker_Img \
-            --image-uri ${{ inputs.ECR_REPO }}:latest          
+            --image-uri ${{ secrets.ECR_REPO }}:latest          
