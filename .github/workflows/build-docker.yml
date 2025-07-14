@@ -55,8 +55,8 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          docker build -t ${{ inputs.ecr-repo }}:latest .
-          docker push ${{ inputs.ecr-repo }}:latest
+          docker build -t ${{ inputs.ECR_REPO }}:latest .
+          docker push ${{ inputs.ECR_REPO }}:latest
           if [ $? -ne 0 ]; then
             echo "Docker push failed"
             exit 1
@@ -69,4 +69,4 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name github_pipeline_docker_Img \
-            --image-uri ${{ env.ECR_REPO }}:latest          
+            --image-uri ${{ inputs.ECR_REPO }}:latest          
