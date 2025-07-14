@@ -6,9 +6,6 @@ on:
       aws-region:
         required: true
         type: string
-      aws-bucket:
-        required: true
-        type: string
       deployToLambda:
         required: true
         type: string
@@ -33,8 +30,6 @@ jobs:
       - name: Print Docker Info
         run: |
           echo "Region: ${{ inputs.aws-region }}"
-          echo "bucket: ${{ inputs.aws-bucket }}"
-          echo "deployToLambda: ${{ inputs.deployToLambda }}"
 
       - name: Print env Info
         run: |
@@ -47,17 +42,31 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+          role-to-assume: arn:aws:iam::${{ secrets.aws-account-id }}:role/github-pipeline
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Upload JAR Report to S3
-        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ inputs.aws-bucket }}/github_pipeline_hello_world/ #deploy會找function-name為名的資料夾，所以要傳到相對應位置
-        if: always() #確保即使失敗也嘗試上傳
+      - name: Create ECR Repository if not exists
+        run: |
+            aws ecr describe-repositories --repository-names my-lambda-image --region ${{ inputs.aws-region }} || \
+            aws ecr create-repository --repository-name my-lambda-image --region ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker image
+        run: |
+          docker build -t ${{ inputs.ecr-repo }}:latest .
+          docker push ${{ inputs.ecr-repo }}:latest
+          if [ $? -ne 0 ]; then
+            echo "Docker push failed"
+            exit 1
+          fi
+          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+          echo "REPO_NAME=my-lambda-image" >> $GITHUB_ENV
 
       - name: Deploy to Lambda
         if: ${{ inputs.deployToLambda == 'true' }}
         run: |
           aws lambda update-function-code \
-            --function-name github_pipeline_hello_world \
-            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
-            --s3-key aws-lambda-1.0-SNAPSHOT.jar
+            --function-name github_pipeline_docker_Img \
+            --image-uri ${{ env.ECR_REPO }}:latest          
