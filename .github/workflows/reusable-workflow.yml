@@ -43,7 +43,7 @@ jobs:
   call-s3:
     needs: prebuild-java
     if: ${{ needs.prebuild-java.outputs.build-type == 's3' }}
-    uses: Roshiahsu/my-lambda-app/.github/workflows/build-docker.yml@yml-test
+    uses: Roshiahsu/my-lambda-app/.github/workflows/build-s3.yml@yml-test
     with:
       aws-region: ${{ needs.prebuild-java.outputs.aws-region }}
       aws-bucket: ${{ needs.prebuild-java.outputs.aws-bucket }}
