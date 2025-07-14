@@ -1,0 +1,70 @@
+name: Build Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      deployToLambda:
+        required: true
+        type: string
+        default: false
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
+      ECR_REPO:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: AWS
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print Docker Info
+        run: |
+          echo "Region: ${{ inputs.aws-region }}"
+
+      - name: Print env Info
+        run: |
+          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+          echo "ECR_REPO: ${{ secrets.ECR_REPO }}"
+
+      - name: Call local composite Maven Build
+        uses: ./.github/actions/maven-build
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Create ECR Repository if not exists
+        run: |
+            aws ecr describe-repositories --repository-names my-lambda-image --region ${{ inputs.aws-region }} || \
+            aws ecr create-repository --repository-name my-lambda-image --region ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker image
+        run: |
+          docker build -t ${{ secrets.ECR_REPO }}:latest .
+          docker push ${{ secrets.ECR_REPO }}:latest
+          if [ $? -ne 0 ]; then
+            echo "Docker push failed"
+            exit 1
+          fi
+
+      - name: Deploy to Lambda
+        if: ${{ inputs.deployToLambda == 'true' }}
+        run: |
+          aws lambda update-function-code \
+            --function-name github_pipeline_docker_Img \
+            --image-uri ${{ secrets.ECR_REPO }}:latest          

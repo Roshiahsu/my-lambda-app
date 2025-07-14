@@ -1,0 +1,61 @@
+name: Build jar to S3
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      aws-bucket:
+        required: true
+        type: string
+      deployToLambda:
+        required: true
+        type: string
+        default: false
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: AWS
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print Docker Info
+        run: |
+          echo "Region: ${{ inputs.aws-region }}"
+          echo "bucket: ${{ inputs.aws-bucket }}"
+          echo "deployToLambda: ${{ inputs.deployToLambda }}"
+
+      - name: Print env Info
+        run: |
+          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+          echo "ECR_REPO: ${{ secrets.ECR_REPO }}"
+
+      - name: Call local composite Maven Build
+        uses: ./.github/actions/maven-build
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Upload JAR Report to S3
+        run: aws s3 cp target/aws-lambda-1.0-SNAPSHOT.jar s3://${{ inputs.aws-bucket }}/github_pipeline_hello_world/ #deploy會找function-name為名的資料夾，所以要傳到相對應位置
+        if: always() #確保即使失敗也嘗試上傳
+
+      - name: Deploy to Lambda
+        if: ${{ inputs.deployToLambda == 'true' }}
+        run: |
+          aws lambda update-function-code \
+            --function-name github_pipeline_hello_world \
+            --s3-bucket ${{ vars.AWS_S3_BUCKET_JAR }} \
+            --s3-key aws-lambda-1.0-SNAPSHOT.jar
