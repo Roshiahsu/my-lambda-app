@@ -42,7 +42,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.aws-account-id }}:role/github-yml-test-tamp
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-yml-test-tamp
           aws-region: ${{ inputs.aws-region }}
 
       - name: Create ECR Repository if not exists
