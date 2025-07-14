@@ -16,8 +16,6 @@ on:
     secrets:
       AWS_ACCOUNT_ID:
         required: true
-      ECR_REPO:
-        required: true
 
 jobs:
   build:
